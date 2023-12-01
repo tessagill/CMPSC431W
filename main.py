@@ -13,6 +13,7 @@ def getUser():
         email = input('Enter your email: ')
         newUser = User(fname, lname, email)
         userID = newUser.generateUserID()
+        User.addUser(userID, )
         print(f'\nHi {fname} {lname}! Your unique userID is {userID}')
         print('\nLet\'s get you started so you can start to take control of your money!')
         incomeType = getValidInput('\nIs your income hourly or salaried?\n', options=['hourly', 'salaried'])
