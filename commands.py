@@ -34,14 +34,19 @@ def createNewDebt(user):
     """
     Adds a debt instance and asks what type and what amount
     """
-    debtType = getValidInput('What type of debt are you adding? student loan, credit card, personal, medical, miscellaneous: ', 
-                  options=['student loan', 'credit card', 'personal', 'medical', 'miscellaneous'])
+    debtType = getValidInput('What type of debt are you adding? student loan, credit card, personal, medical, mortage, miscellaneous: ', 
+                  options=['student loan', 'credit card', 'personal', 'medical', 'mortage', 'miscellaneous'])
     amount = getValidInput('How much money in dollars is this debt? ', decimal=True)
     interestRate = getValidInput('What is the annual interest rate? ', decimal=True)
     minPayment = getValidInput('What is the minimum monthly payment? ', decimal=True)
 
     # SQL command to enter data here
-    print(f'\nYour {debtType} debt of {amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment} has been added.')
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    add_debt = """ INSERT INTO User VALUES ('{user.userID}', '{debtType}', '{amount}', '{interestRate}', '{total_balance})"""
+    cursor.execute(add_debt)
+    connection.close()
+    print(f'\n{user.UserID}, your {debtType} debt of {amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment} has been added.')
     input('\nPress ENTER to continue')
 
 def createNewRecurring(user):

@@ -11,9 +11,10 @@ def getUser():
         fname = input('Enter your first name: ')
         lname = input('Enter your last name: ')
         email = input('Enter your email: ')
+        total_balance = input('Enter your current savings: ')
         newUser = User(fname, lname, email)
         userID = newUser.generateUserID()
-        User.addUser(userID, )
+        User.addUser(userID, fname, lname, email, total_balance)
         print(f'\nHi {fname} {lname}! Your unique userID is {userID}')
         print('\nLet\'s get you started so you can start to take control of your money!')
         incomeType = getValidInput('\nIs your income hourly or salaried?\n', options=['hourly', 'salaried'])
@@ -21,26 +22,29 @@ def getUser():
         if incomeType == 'hourly':
             hourly_wage = getValidInput('\nEnter your hourly pay: ', decimal=True)
             hours_worked = getValidInput('\nEnter your weekly hours worked: ', decimal=True)
-            newUser = HourlyPaidUser(newUser.fname, newUser.lname, newUser.email, hourly_wage, hours_worked)
+            HourlyPaidUser(userID, hourly_wage, hours_worked)
         elif incomeType == 'salaried':
             salary = getValidInput('\nEnter your annual pay: ', decimal=True)
-            newUser = HourlyPaidUser(newUser.fname, newUser.lname, newUser.email, salary)
+            AnnuallyPaidUser(userID, salary)
         
-        return newUser
+        return userID
         
 
     elif start == 'existing':
-        userID = input('Enter your UserID: ')
-        user = User.searchUserID(userID)
-        return user
+        logged_in = False
+        while logged_in == False:
+            userID = input('Enter your UserID: ')
+            if User.searchUserID(userID) != "UserID does not exist":
+                logged_in = True 
+        return userID
 
 
 def main():
     user = getUser() # retrieves new or existing user
     while True:
-        clear()
+        #clear()
         listCommands()
-        command = input().lower()
+        command = input("Enter action ").lower()
         print()
 
         # ALL COMMANDS
