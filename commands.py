@@ -25,6 +25,8 @@ VIEW debt payoff timeline
 VIEW predicted month's spending
 VIEW expenses by category
 VIEW budget
+          
+EXIT 
 """)
 
 

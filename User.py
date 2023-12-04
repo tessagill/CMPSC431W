@@ -12,19 +12,41 @@ class User:
         self.userID = self.fname + '.' + self.lname
         return self.userID
 
-    def addUser(userID, fname, lname, email, total_balance):
+    def addUser(userID, fname, lname, email, total_balance): 
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
-        add_user = """ INSERT INTO User VALUES ('{userID}', '{fname}', '{lanme}', '{email}', '{total_balance}')"""
-        cursor.execute(add_user)
+        # Check if the userID already exists in the UserTable
+        cursor.execute("SELECT COUNT(*) FROM User WHERE userID = ?", (userID,))
+        user_count = cursor.fetchone()
         connection.close()
+
+        # SQL transaction to insert new user or rollback 
+        connection = sqlite3.connect('finances.db')
+        cursor = connection.cursor()
+
+        # Start a transaction
+        connection.execute("BEGIN TRANSACTION")
+
+        # Check if the userID already exists in the UserTable
+        cursor.execute("SELECT COUNT(*) FROM User WHERE userID = ?", (userID,))
+        user_count = cursor.fetchone()
+        cursor.execute(""" INSERT INTO User VALUES ('{userID}', '{fname}', '{lanme}', '{email}', '{total_balance}')""")
+
+        if user_count == 0:
+        # userID does not exist, proceed with the INSERT
+            connection.commit()
+            print("User added successfully.")
+        else:
+        # userID already exists, rollback the transaction
+            connection.rollback()
+            print("Error: userID already exists. Rolling back transaction. Please insert unique name or log in ")
+            
+
+        connection.close()
+        return user_count
 
 
     def searchUserID(userID):
-        """
-        Should return a class object of HourlyPaidUser or AnnuallyPaidUser or an error message indicating that
-        the user could not be found information on the user including fname, lname, email, and to try a new userID
-        """ 
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
 

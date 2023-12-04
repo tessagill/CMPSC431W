@@ -14,20 +14,24 @@ def getUser():
         total_balance = input('Enter your current savings: ')
         newUser = User(fname, lname, email)
         userID = newUser.generateUserID()
-        User.addUser(userID, fname, lname, email, total_balance)
-        print(f'\nHi {fname} {lname}! Your unique userID is {userID}')
-        print('\nLet\'s get you started so you can start to take control of your money!')
-        incomeType = getValidInput('\nIs your income hourly or salaried?\n', options=['hourly', 'salaried'])
+        user_count = User.addUser(userID, fname, lname, email, total_balance)
+        if user_count == 0:
+            print(f'\nHi {fname} {lname}! Your unique userID is {userID}')
+            print('\nLet\'s get you started so you can start to take control of your money!')
+            incomeType = getValidInput('\nIs your income hourly or salaried?\n', options=['hourly', 'salaried'])
         
-        if incomeType == 'hourly':
-            hourly_wage = getValidInput('\nEnter your hourly pay: ', decimal=True)
-            hours_worked = getValidInput('\nEnter your weekly hours worked: ', decimal=True)
-            HourlyPaidUser(userID, hourly_wage, hours_worked)
-        elif incomeType == 'salaried':
-            salary = getValidInput('\nEnter your annual pay: ', decimal=True)
-            AnnuallyPaidUser(userID, salary)
+            if incomeType == 'hourly':
+                hourly_wage = getValidInput('\nEnter your hourly pay: ', decimal=True)
+                hours_worked = getValidInput('\nEnter your weekly hours worked: ', decimal=True)
+                HourlyPaidUser(userID, hourly_wage, hours_worked)
+            elif incomeType == 'salaried':
+                salary = getValidInput('\nEnter your annual pay: ', decimal=True)
+                AnnuallyPaidUser(userID, salary)
+            return userID
         
-        return userID
+        elif user_count != 0: 
+            getUser()
+        
         
 
     elif start == 'existing':
@@ -44,7 +48,7 @@ def main():
     while True:
         #clear()
         listCommands()
-        command = input("Enter action ").lower()
+        command = input("Enter action: ").lower()
         print()
 
         # ALL COMMANDS
@@ -59,7 +63,7 @@ def main():
 
 
         elif command == "update income":
-            updateIncome(user) # returns the updated user object with new income
+            updateIncome(user) 
         elif command == "update debt":
             updateDebt(user)
         elif command == "update investments":
@@ -76,8 +80,12 @@ def main():
             viewExpensesByCategory(user)
         elif command == "view budget":
             viewBudget(user)
+
+        elif command == "exit":
+            break
         else:
             print("Unknown command")
+
 
 
 
