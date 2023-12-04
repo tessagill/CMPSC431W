@@ -20,7 +20,7 @@ def getValidInput(message, options=None, decimal=False, integer=False, intRange=
     """
     while True:
         user_input = input(message).lower()  # Convert input to lowercase for case-insensitivity
-
+        
         if decimal: # if we are parsing a float
             try:
                 user_input = float(user_input)
@@ -29,6 +29,14 @@ def getValidInput(message, options=None, decimal=False, integer=False, intRange=
             except ValueError:
                 clear()
                 print(f'Invalid input: {user_input}, please enter a number.\n')
+
+        elif type(user_input) == bool:  # if we are parsing a boolean
+            if user_input.lower() in ['true', 'false']:
+                return user_input.lower() == 'true'
+            else:
+                clear()
+                print(f'Invalid input: {user_input}. Please enter either True or False.\n')
+     
         elif integer and intRange is None: # if we are parsing an integer without an integer range
             try:
                 user_input = int(user_input)

@@ -50,24 +50,24 @@ def main():
         # ALL COMMANDS
         if command == "create new debt":
             createNewDebt(user)
-        elif command == "create recurring payment":
-            createNewRecurring(user)
-        elif command == "create upcoming payment":
-            createNewUpcomingPayment(user)
+        elif command == "create planned payment":
+            createNewPlannedPayment(user)
         elif command == "create transaction":
             createNewTransaction(user)
         elif command == "create new budget":
             print("Handling CREATE new budget")
+
+
         elif command == "update income":
             user = updateIncome(user) # returns the updated user object with new income
         elif command == "update debt":
             updateDebt(user)
         elif command == "update investments":
             print("Handling UPDATE investments")
-        elif command == "update recurring":
-            print("Handling UPDATE recurring")
         elif command == "update planned payments":
             print("Handling UPDATE planned payments")
+
+
         elif command == "view debt payoff timeline":
             print("Handling VIEW debt payoff timeline")
         elif command == "view predicted month's spending":
