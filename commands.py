@@ -296,3 +296,77 @@ def viewExpensesByCategory(user):
     for row in result:
         print(f'{row[0]}: ${row[1]}\n')
     input('\nPress ENTER to continue')
+
+def viewBudget(user):
+    """
+    Returns budget table with combined income, savings, and expenses
+    """
+    annualSalary = isAnnual(user)
+
+    if annualSalary == True: 
+        #SQL command to create budget for salary user
+        connection = sqlite3.connect('finances.db')
+        cursor = connection.cursor()
+        viewBudget = """SELECT u.userID AS userID, ROUND(a.annual_pay/12, 2) AS monthlySalary, sum(t.amount) AS
+                        total_transactions, sum(d.min_payment) AS total_debt_monthly_payments,
+                        sum(pp.amount) AS total_planned_expenses, 
+                        ROUND((ROUND(a.annual_pay/12, 2) - sum(t.amount) - sum(d.min_payment) - sum(pp.amount)), 2) AS remainingAmount
+                    FROM User u
+                        LEFT JOIN Annual_income a
+                        ON u.userID = a.userID
+                        LEFT JOIN Transactions t
+                        ON u.userID = t.userID
+                        LEFT JOIN Debt d
+                        ON u.userID = d.userID
+                        LEFT JOIN Planned_Payments pp
+                        ON u.userID = pp.userID
+                    WHERE u.userID = ?
+                    """
+
+        cursor.execute(viewBudget, (user,))
+        result = cursor.fetchall()
+        connection.close()
+
+    else:
+        #SQL command to create budget for hourly paid user
+        connection = sqlite3.connect('finances.db')
+        cursor = connection.cursor()
+        viewBudget = """SELECT u.userID AS userID, ROUND(h.hourly_wages * h.hours_worked * 4, 2) AS monthlySalary, sum(t.amount) AS
+                        total_transactions, sum(d.min_payment) AS total_debt_monthly_payments,
+                        sum(pp.amount) AS total_planned_expenses, 
+                        ROUND((ROUND(h.hourly_wages * h.hours_worked * 4, 2) - sum(t.amount) - sum(d.min_payment) - sum(pp.amount)), 2) AS remainingAmount
+                    FROM User u
+                        LEFT JOIN hourly_income h
+                        ON u.userID = h.userID
+                        LEFT JOIN Transactions t
+                        ON u.userID = t.userID
+                        LEFT JOIN Debt d
+                        ON u.userID = d.userID
+                        LEFT JOIN Planned_Payments pp
+                        ON u.userID = pp.userID
+                    WHERE u.userID = ?
+                    """
+
+        cursor.execute(viewBudget, (user,))
+        result = cursor.fetchall()
+        connection.close()
+
+    print(f'\nYour budget is:\n ')
+    for row in result:
+        print(f'Monthly Income: ${row[1]}\nTransactions: ${row[2]}\nDebt Payments: ${row[3]}\nPlanned Payments: ${row[4]}\nRemaining Amount: ${row[5]}')
+    input('\nPress ENTER to continue')
+
+def isAnnual(user):
+    #SQL command to check if a user is paid annually 
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+
+    check= "SELECT COUNT(*) FROM annual_income WHERE userID = ?"
+    cursor.execute(check, (user,))
+    count = cursor.fetchone()[0]
+
+    connection.close()
+    if count != 0:
+        return True 
+    else: 
+        return False

@@ -24,7 +24,7 @@ def create_users_table():
     cursor.execute('''INSERT INTO User VALUES ('Tessa.Gill', 'Tessa', 'Gill', 'tsg5227@psu.edu', 100000)''') 
     cursor.execute('''INSERT INTO User VALUES ('Jared.Cole','Jared', 'Cole', 'jcc6066@psu.edu', 150000)''') 
     cursor.execute('''INSERT INTO User VALUES ('John.Smith','John', 'Smith', 'johnsmith@example.com', 50000)''') 
-    cursor.execute('''INSERT INTO User VALUES ('Sarah Smith','Sarah', 'Smith', 'sarahsmith@example.com', 200000)''') 
+    cursor.execute('''INSERT INTO User VALUES ('Sarah.Smith','Sarah', 'Smith', 'sarahsmith@example.com', 200000)''') 
 
     connection.commit()
     connection.close()
@@ -73,8 +73,8 @@ def create_annual_income_table():
                             """
     cursor.execute(create_annual_income_table) 
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO annual_income VALUES ('Jared.Cole', 85000)''') 
-    cursor.execute('''INSERT INTO annual_income VALUES ('Sarah Smith', 150000)''') 
+    cursor.execute('''INSERT INTO annual_income VALUES ('Jared.Cole', 100000)''') 
+    cursor.execute('''INSERT INTO annual_income VALUES ('Sarah.Smith', 150000)''') 
 
     connection.commit()
     connection.close()
@@ -110,9 +110,9 @@ def create_transactions_table():
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 1, 2000, 2023-01-01, 'Furniture', 'IKEA');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 2, 250, 2023-01-01, 'Furniture', 'Wayfair');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 3, 75, 2023-01-01, 'Groceries', 'Giant');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah Smith', 1, 200, 2023-01-12, 'Groceries', 'Wegnmans');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah Smith', 2, 40, 2023-01-12, 'Gas', 'Wawa');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah Smith', 3, 20, 2023-01-15, 'Movies', 'AMC');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 1, 200, 2023-01-12, 'Groceries', 'Wegnmans');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 2, 40, 2023-01-12, 'Gas', 'Wawa');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 3, 20, 2023-01-15, 'Movies', 'AMC');''') 
 
 
 
@@ -141,7 +141,8 @@ def create_debt_table():
                             """
     cursor.execute(create_debt_table)
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO debt VALUES ('Tessa.Gill', 20000, 'Student', 2.2, 750)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('Tessa.Gill', 20000, 'Student', 2.2, 750)''')
+    cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 5000, 'Student', 2.2, 200)''') 
     cursor.execute('''INSERT INTO debt VALUES ('John.Smith', 2350000, 'Mortage', 0.8, 1300)''') 
 
     connection.commit()
@@ -197,7 +198,7 @@ def create_planned_payments_table():
     cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 1, 'Rent', 1200, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 15, 'Netflix', 20, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 30, 'Utilities', 75, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', 1, 'Rent', 2000, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', 1, 'Rent', 1000, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', 15, 'Utilites', 150, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', 1, 'Rent', 750, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', 1, 'Vacation', 1500, FALSE)''') 

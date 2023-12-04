@@ -75,7 +75,7 @@ def main():
         elif command == "view expenses by category":
             viewExpensesByCategory(user)
         elif command == "view budget":
-            print("Handling VIEW budget")
+            viewBudget(user)
         else:
             print("Unknown command")
 
