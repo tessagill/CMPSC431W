@@ -273,3 +273,26 @@ def updatePlannedPayments(user):
         print(f'Your planned payment has successfully been deleted.')
     
     input('\nPress ENTER to continue')
+
+
+def viewExpensesByCategory(user):
+    """
+    Returns sorted list of expenses
+    """
+    #SQL command
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    viewExpenses = """SELECT category, sum(amount)
+                      FROM Transactions
+                      WHERE userID = ?
+                      GROUP BY userID, category
+                      ORDER BY sum(amount) DESC"""
+
+    cursor.execute(viewExpenses, (user,))
+    result = cursor.fetchall()
+    connection.close()
+
+    print(f'\nYour expenses in descending order are:\n ')
+    for row in result:
+        print(f'{row[0]}: ${row[1]}\n')
+    input('\nPress ENTER to continue')

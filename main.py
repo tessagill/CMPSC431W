@@ -59,13 +59,13 @@ def main():
 
 
         elif command == "update income":
-            user = updateIncome(user) # returns the updated user object with new income
+            updateIncome(user) # returns the updated user object with new income
         elif command == "update debt":
             updateDebt(user)
         elif command == "update investments":
-            print("Handling UPDATE investments")
+            updateInvestments(user)
         elif command == "update planned payments":
-            print("Handling UPDATE planned payments")
+            updatePlannedPayments(user)
 
 
         elif command == "view debt payoff timeline":
@@ -73,7 +73,7 @@ def main():
         elif command == "view predicted month's spending":
             print("Handling VIEW predicted month's spending")
         elif command == "view expenses by category":
-            print("Handling VIEW expenses by category")
+            viewExpensesByCategory(user)
         elif command == "view budget":
             print("Handling VIEW budget")
         else:
