@@ -15,35 +15,37 @@ class User:
     def addUser(userID, fname, lname, email, total_balance): 
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
-        # Check if the userID already exists in the UserTable
-        cursor.execute("SELECT COUNT(*) FROM User WHERE userID = ?", (userID,))
-        user_count = cursor.fetchone()
-        connection.close()
-
-        # SQL transaction to insert new user or rollback 
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
 
         # Start a transaction
         connection.execute("BEGIN TRANSACTION")
 
         # Check if the userID already exists in the UserTable
-        cursor.execute("SELECT COUNT(*) FROM User WHERE userID = ?", (userID,))
+        # Check with first name and last name because the combination of them may be duplicates
+        cursor.execute("SELECT COUNT(*) FROM User WHERE fname = ? AND lname = ?", (fname, lname,))
         user_count = cursor.fetchone()
-        cursor.execute(""" INSERT INTO User VALUES ('{userID}', '{fname}', '{lanme}', '{email}', '{total_balance}')""")
+        #print(user_count[0])
 
-        if user_count == 0:
+        #cursor.execute(f"""INSERT INTO User VALUES ('{userID}', '{fname}', '{lname}', '{email}', '{total_balance}') """)
+
+        #if user_count[0] == 0:
+        try:
         # userID does not exist, proceed with the INSERT
+            cursor.execute(f"""INSERT INTO User VALUES ('{userID}', '{fname}', '{lname}', '{email}', '{total_balance}') """)
             connection.commit()
             print("User added successfully.")
-        else:
+            # get_all = connection.execute("""SELECT * FROM User""")
+            # result = get_all.fetchall()
+            # for row in result:
+            #     print(row)
+
+        #else:s
+        except:
         # userID already exists, rollback the transaction
             connection.rollback()
-            print("Error: userID already exists. Rolling back transaction. Please insert unique name or log in ")
+            print("Error: userID already exists. Rolling back transaction. ")
             
-
         connection.close()
-        return user_count
+        return user_count[0]
 
 
     def searchUserID(userID):
@@ -90,9 +92,15 @@ class HourlyPaidUser:
         
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
-        add_hourly_user = """ INSERT INTO hourly_income VALUES ('{userID}', '{hourly_wages}', '{hours_worked}')"""
+        add_hourly_user = f""" INSERT INTO hourly_income VALUES ('{userID}', '{hourly_wages}', '{hours_worked}')"""
         cursor.execute(add_hourly_user)
-        connection.close()
+        connection.commit()
+        # get_all = connection.execute("""SELECT * FROM Hourly_income""")
+        # result = get_all.fetchall()
+        # for row in result:
+        #     print(row)
+        # connection.close()
+
 
     def calculateBiWeeklyPay(self):
         return self.hourly_wages * self.hours_worked * 2
@@ -100,15 +108,21 @@ class HourlyPaidUser:
 
 class AnnuallyPaidUser:
     def __init__(self, userID, salary):
-        #super().__init__(fname, lname, email)
         self.userID = userID
         self.salary = salary
 
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
-        add_salaried_user = """ INSERT INTO annual_income VALUES ('{userID}', '{salary}')"""
+        add_salaried_user = f""" INSERT INTO annual_income VALUES ('{userID}', '{salary}')"""
         cursor.execute(add_salaried_user)
-        connection.close()   
+        connection.commit()
+        #get_all = connection.execute("""SELECT * FROM Annual_Income""")
+        # result = get_all.fetchall()
+        # for row in result:
+        #     print(row)
+        # connection.close()   
+
+
 
     def calculateBiWeeklyPay(self):
         return self.salary/26

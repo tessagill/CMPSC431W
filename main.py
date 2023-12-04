@@ -30,7 +30,23 @@ def getUser():
             return userID
         
         elif user_count != 0: 
-            getUser()
+            option = getValidInput('\nWould you like to log in or generate a unique ID? ', options=['log in', 'generate'])
+            if option == 'log in':
+                getUser()
+            else: #generate unique user ID by adding what number of that name they are 
+                userID = userID + str(user_count+1) 
+                print(f'\nHi {fname} {lname}! Your unique userID is {userID}')
+                print('\nLet\'s get you started so you can start to take control of your money!')
+                incomeType = getValidInput('\nIs your income hourly or salaried?\n', options=['hourly', 'salaried'])
+        
+                if incomeType == 'hourly':
+                    hourly_wage = getValidInput('\nEnter your hourly pay: ', decimal=True)
+                    hours_worked = getValidInput('\nEnter your weekly hours worked: ', decimal=True)
+                    HourlyPaidUser(userID, hourly_wage, hours_worked)
+                elif incomeType == 'salaried':
+                    salary = getValidInput('\nEnter your annual pay: ', decimal=True)
+                    AnnuallyPaidUser(userID, salary)
+            return userID
         
         
 
@@ -85,10 +101,6 @@ def main():
             break
         else:
             print("Unknown command")
-
-
-
-
 
 
 
