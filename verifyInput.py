@@ -3,7 +3,7 @@ from datetime import datetime
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear') # clears screen above
 
-def getValidInput(message, options=None, decimal=False, integer=False, intRange=None, isDate=False, caseSensitive=False):
+def getValidInput(message, options=None, decimal=False, integer=False, intRange=None, isDate=False, caseSensitive=False, bannedOptions=None):
     """
     Get valid input from the user.
 
@@ -13,7 +13,9 @@ def getValidInput(message, options=None, decimal=False, integer=False, intRange=
     - decimal: Boolean if number is a float
     - integer: Boolean if number is an integer
     - intRange: range for integer to be within, inclusive
-
+    - isDate: specifies if the input should be a date in MM-DD-YYYY
+    - caseSensitive: if True, then the case of the input does matter
+    - bannedOptions: list of inputs that will not be accepted
 
     Returns:
     - The user's valid input.
@@ -64,6 +66,24 @@ def getValidInput(message, options=None, decimal=False, integer=False, intRange=
                 except ValueError:
                     clear()
                     print("Invalid date format. Please enter a date in the format MM-DD-YYYY.\n")
+        elif bannedOptions is not None:
+            if options is None: # special case when we only have banned options and not regular options
+                if user_input in bannedOptions:
+                    clear()
+                    print(f'The option {user_input} is not allowed.')
+                    continue
+                else:
+                    return user_input
+            possibleOptions = list(set(options) - set(bannedOptions))
+            if user_input in bannedOptions:
+                clear()
+                print(f'The option {user_input} is not allowed, please select one of the following options: {", ".join(possibleOptions)}')
+            else:
+                if user_input in options:
+                    return user_input  # Return the valid input
+                clear()
+                print(f"Invalid input: {user_input}. Please enter one of the following options: {', '.join(possibleOptions)}\n")
+
         else: # if we are making sure the string is in the list of options
             if user_input in options:
                 return user_input  # Return the valid input
