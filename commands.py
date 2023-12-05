@@ -290,6 +290,7 @@ def updatePlannedPayments(user):
         print('You do not have any planned payments. Add one to be able to update.\n')
         connection.close()
         input('\nPress ENTER to continue')
+        return
 
     selectedTitle = getValidInput(f'Which planned payment do you want to modify?\ncurrent planned payments: {", ".join(pp)}\n', options=pp, caseSensitive=True)
 
