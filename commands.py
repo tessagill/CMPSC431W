@@ -14,7 +14,7 @@ LIST OF COMMANDS: CASE-INSENSITIVE
 CREATE new debt
 CREATE planned payment
 CREATE transaction
-CREATE new budget
+CREATE investment portfolio
 
 UPDATE income
 UPDATE debt
@@ -22,7 +22,6 @@ UPDATE investments
 UPDATE planned payments
 
 VIEW debt payoff timeline
-VIEW predicted month's spending
 VIEW expenses by category
 VIEW budget
           
@@ -48,7 +47,7 @@ def createNewDebt(user):
     cursor.execute(add_debt)
     connection.commit()
     connection.close()
-    print(f'\n{user}, your {debtType} debt of {amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment:.2f} has been added.')
+    print(f'\n{user}, your {debtType} debt of ${amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment:.2f} has been added.')
     input('\nPress ENTER to continue')
 
 def createNewPlannedPayment(user):
@@ -84,23 +83,48 @@ def createNewTransaction(user):
     """
     Adds a new transaction instance and asks for transaction details
     """
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
     amount = getValidInput('Enter transaction amount in dollars: ', decimal=True)
-    current_date = datetime.now().date()
-    category = getValidInput('Enter transaction type (utilites, travel, rent, entertainment, dept payment, groceries, clothes, gift, fast food, misc.) ): ',
-                options=['utilities', 'travel', 'rent', 'entertainment', 'debt payment', 'groceries', 'clothes', 'gift'])
+    category = getValidInput('Enter transaction type (utilites, travel, rent, entertainment, debt payment, groceries, clothes, gift, fast food, misc.): ',
+                options=['utilities', 'travel', 'rent', 'entertainment', 'debt payment', 'groceries', 'clothes', 'gift', 'fast food', 'misc.'])
     store_name = input('Enter the merchant\'s name: ')
-    #tranID = generateTranID() # some sort of SQL command that generates a new unique ID?, or we can have it generated upon insertion
+    tran_count = cursor.execute(f"SELECT COUNT(*) FROM Transactions WHERE userID = '{user}'").fetchone()
+    tranID = tran_count[0] + 1
+
 
     #SQL command to enter transaction here
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    add_planned_payment = """ INSERT INTO transactions VALUES ('{user}', '{tranID}', '{amount}', '{category}', '{store_name})"""
-    cursor.execute(add_planned_payment)
+    add_transaction = f""" INSERT INTO transactions VALUES ('{user}', {tranID}, {amount}, CURRENT_TIMESTAMP, '{category}', '{store_name}')"""
+    cursor.execute(add_transaction)
     connection.commit()
     connection.close()
 
     print(f'\nYour {category} transaction from {store_name} of ${amount:.2f} has been added')
     input('\nPress ENTER to continue')
+
+def createNewInvestment(user):
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    get_investment = f""" SELECT * FROM Investments WHERE userID = '{user}' """
+    if cursor.execute(get_investment).fetchone() is not None:
+        print('You already have an investment. Use the UPDATE command to edit or delete it.')
+        connection.close()
+        input('\nPress ENTER to continue')
+        return
+
+    portfolioTotal = getValidInput('What is the portfolio size you have? $', decimal=True)
+    riskScore = getValidInput('What is your preferred risk percent? (0-100 where 0 is not risky at all and 100 is as risky as possible) ', decimal=True)
+
+    # SQL command to enter data here
+    add_investment = f"""INSERT INTO Investments VALUES ('{user}', {portfolioTotal}, {riskScore})"""
+    cursor.execute(add_investment)
+    connection.commit()
+    connection.close()
+    print(f'\n{user}, your investment portfolio of ${portfolioTotal:.2f}, with risk percent {riskScore}% has been added.')
+    input('\nPress ENTER to continue')
+
 
 def updateIncome(user):
     """
@@ -152,8 +176,15 @@ def updateDebt(user):
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
     get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
-    debtTypes = [item[0].lower() for item in get_debts]
-    selectedType = getValidInput(f'Which debt type do you want to modify?\ncurrent debts: {", ".join(debtTypes)}\n', options=debtTypes)
+    debtTypes = [item[0] for item in get_debts]
+
+    if len(debtTypes) == 0:
+        print('You have no debts added. Create a new one to be able to update.')
+        connection.close()
+        input('\nPress ENTER to continue')
+        return
+
+    selectedType = getValidInput(f'Which debt type do you want to modify?\ncurrent debts: {", ".join(debtTypes)}\n', options=debtTypes, caseSensitive=True)
 
     # SQL command to retrieve debt instance of selectedType and put it into debt object
     selected_debt = f""" SELECT * FROM Debt WHERE userID = '{user}' AND debt_type = '{selectedType}'"""
@@ -255,6 +286,11 @@ def updatePlannedPayments(user):
     get_planned_payments = cursor.execute(f""" SELECT Title FROM planned_payments WHERE userID = '{user}' """).fetchall()
     pp = [item[0] for item in get_planned_payments]
 
+    if len(pp) == 0:
+        print('You do not have any planned payments. Add one to be able to update.\n')
+        connection.close()
+        input('\nPress ENTER to continue')
+
     selectedTitle = getValidInput(f'Which planned payment do you want to modify?\ncurrent planned payments: {", ".join(pp)}\n', options=pp, caseSensitive=True)
 
     option = getValidInput('Do you want to change the payment amount, due date, or simply delete it? ', 
@@ -298,6 +334,46 @@ def updatePlannedPayments(user):
     connection.close()
     input('\nPress ENTER to continue')
 
+def viewDebtPayoffTimeline(user):
+    # retrieve types of debt where user.userID is the same, then put it as debtTypes list
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
+    debtTypes = [item[0] for item in get_debts]
+
+    if len(debtTypes) == 0:
+        print('You have no debts added. Create a new one to be able to see the timeline.')
+        connection.close()
+        input('\nPress ENTER to continue')
+        return
+    selectedType = getValidInput(f'Which debt type do you want to modify?\ncurrent debts: {", ".join(debtTypes)}\n', options=debtTypes, caseSensitive=True)
+    
+    get_debts = cursor.execute(f""" SELECT * FROM Debt WHERE userID = '{user}' AND debt_type = '{selectedType}' """).fetchone()
+    connection.close()
+
+    debtAmount = get_debts[1]
+    debtType = get_debts[2]
+    interestRate = get_debts[3]
+    minPayment = get_debts[4]
+
+    print(f'\nFor your {debtType} debt with a debt amount of ${debtAmount:.2f}, annual interest rate {interestRate}%, and minimum payment ${minPayment:.2f}:\n')
+
+    totalMonths = 0
+    totalPaid = 0
+    while debtAmount > 0:
+        monthlyInterest = debtAmount * interestRate/100
+        debtAmount = debtAmount + monthlyInterest
+        debtAmount = debtAmount - minPayment - monthlyInterest
+        totalPaid += minPayment + monthlyInterest
+        if debtAmount < 0:
+            totalPaid += debtAmount
+        totalMonths+=1
+    
+    print(f'It will take you {totalMonths} months, or {totalMonths/12:.2f} years and ${totalPaid:.2f} in total to\nfully pay off the {debtType} debt if you only pay the minimum payment plus monthly interest.')
+    input('\nPress ENTER to continue')
+    
+
+
 
 def viewExpensesByCategory(user):
     """
@@ -306,14 +382,14 @@ def viewExpensesByCategory(user):
     #SQL command
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    viewExpenses = """SELECT category, sum(amount)
+    viewExpenses = f"""SELECT category, sum(amount)
                       FROM Transactions
-                      WHERE userID = ?
+                      WHERE userID = '{user}'
                       GROUP BY userID, category
-                      ORDER BY sum(amount) DESC"""
+                      ORDER BY sum(amount) DESC
+                      """
 
-    cursor.execute(viewExpenses, (user,))
-    result = cursor.fetchall()
+    result = cursor.execute(viewExpenses).fetchall()
     connection.close()
 
     print(f'\nYour expenses in descending order are:\n ')
@@ -371,15 +447,20 @@ def viewBudget(user):
     total_transactions = result[2] if result[2] is not None else 0
     total_debt_payments = result[3] if result[3] is not None else 0
     total_planned_payments = result[4] if result[4] is not None else 0
-    remaining_budget = result[5] if result[5] is not None else 0
+    remaining_budget = monthly_salary - total_transactions - total_debt_payments - total_planned_payments
+
+    insertBudget = f""" INSERT INTO Budget
+    VALUES ('{user}', CURRENT_TIMESTAMP, {monthly_salary}, {total_transactions}, {total_debt_payments}, {total_planned_payments}, {remaining_budget})"""
+    cursor.execute(insertBudget)
+    connection.commit()
     connection.close()
 
     print(f'\nYour budget is:\n ')
     print(f'Monthly Salary: ${monthly_salary:.2f}')
     print(f'Total transactions from last month: ${total_transactions:.2f}')
     print(f'Total debt payments: ${total_debt_payments:.2f}')
-    print(f'Total planned expenses: ${total_planned_payments}')
-    print(f'Remaining estimated balance: ${remaining_budget}')
+    print(f'Total planned expenses: ${total_planned_payments:.2f}')
+    print(f'Remaining estimated balance: ${remaining_budget:.2f}')
     input('\nPress ENTER to continue')
 
 def isAnnual(user):
