@@ -23,20 +23,12 @@ class User:
         # Check with first name and last name because the combination of them may be duplicates
         cursor.execute("SELECT COUNT(*) FROM User WHERE fname = ? AND lname = ?", (fname, lname,))
         user_count = cursor.fetchone()
-        #print(user_count[0])
 
-        #cursor.execute(f"""INSERT INTO User VALUES ('{userID}', '{fname}', '{lname}', '{email}', '{total_balance}') """)
-
-        #if user_count[0] == 0:
         try:
         # userID does not exist, proceed with the INSERT
             cursor.execute(f"""INSERT INTO User VALUES ('{userID}', '{fname}', '{lname}', '{email}', '{total_balance}') """)
             connection.commit()
             print("User added successfully.")
-            # get_all = connection.execute("""SELECT * FROM User""")
-            # result = get_all.fetchall()
-            # for row in result:
-            #     print(row)
 
         #else:s
         except:
@@ -66,17 +58,6 @@ class User:
             }
             print ("Welcome "+ result[1] + " " + result[2])
             return userID
-            # get_annual_income_info = """ SELECT * FROM annual_income WHERE userID = ?"""
-            # cursor.execute(get_annual_income_info, (userID,))
-            # result_annual = cursor.fetchone()
-            # if result_annual:
-            #     return AnnuallyPaidUser(result[1], result[2], result[3], result_annual[1])
-
-            # get_hourly_income_info = """ SELECT * FROM hourly_income WHERE userID = ?"""
-            # cursor.execute(get_hourly_income_info, (userID,))
-            # result_hourly = cursor.fetchone()
-            # if result_hourly:
-            #     return HourlyPaidUser(result[1], result[2], result[3], result_hourly[1], result_hourly[2])
             
         else: 
             print ("UserID does not exist. Please try again.")
@@ -95,12 +76,6 @@ class HourlyPaidUser:
         add_hourly_user = f""" INSERT INTO hourly_income VALUES ('{userID}', '{hourly_wages}', '{hours_worked}')"""
         cursor.execute(add_hourly_user)
         connection.commit()
-        # get_all = connection.execute("""SELECT * FROM Hourly_income""")
-        # result = get_all.fetchall()
-        # for row in result:
-        #     print(row)
-        # connection.close()
-
 
     def calculateBiWeeklyPay(self):
         return self.hourly_wages * self.hours_worked * 2
@@ -116,13 +91,6 @@ class AnnuallyPaidUser:
         add_salaried_user = f""" INSERT INTO annual_income VALUES ('{userID}', '{salary}')"""
         cursor.execute(add_salaried_user)
         connection.commit()
-        #get_all = connection.execute("""SELECT * FROM Annual_Income""")
-        # result = get_all.fetchall()
-        # for row in result:
-        #     print(row)
-        # connection.close()   
-
-
 
     def calculateBiWeeklyPay(self):
         return self.salary/26
