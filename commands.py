@@ -382,17 +382,19 @@ def viewExpensesByCategory(user):
     #SQL command
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
+    order = getValidInput('Do you want to see the expenses in increasing or decreasing order?', options=['ascending', 'decreasing'])
+    orderBY = 'ASC' if order == 'ascending' else 'DESC'
     viewExpenses = f"""SELECT category, sum(amount)
                       FROM Transactions
                       WHERE userID = '{user}'
                       GROUP BY userID, category
-                      ORDER BY sum(amount) DESC
+                      ORDER BY sum(amount) {orderBY}
                       """
 
     result = cursor.execute(viewExpenses).fetchall()
     connection.close()
 
-    print(f'\nYour expenses in descending order are:\n ')
+    print(f'\nYour expenses in {order} order are:\n ')
     for row in result:
         print(f'{row[0]}: ${row[1]}\n')
     input('\nPress ENTER to continue')
