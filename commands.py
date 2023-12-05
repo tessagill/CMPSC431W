@@ -33,15 +33,18 @@ def createNewDebt(user):
     """
     Adds a debt instance and asks what type and what amount
     """
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
+    currentDebtTypes = [item[0] for item in get_debts] # types that must be banned
+
     debtType = getValidInput('What type of debt are you adding? (student loan, credit card, personal, medical, mortgage, miscellaneous): ', 
-                  options=['student loan', 'credit card', 'personal', 'medical', 'mortgage', 'miscellaneous'])
+                  options=['student loan', 'credit card', 'personal', 'medical', 'mortgage', 'miscellaneous'], bannedOptions=currentDebtTypes)
     amount = getValidInput('How much money in dollars is this debt? $', decimal=True)
     interestRate = getValidInput('What is the annual interest rate? ', decimal=True)
     minPayment = getValidInput('What is the minimum monthly payment? $', decimal=True)
 
     # SQL command to enter data here
-    connection = sqlite3.connect('finances.db')
-    cursor = connection.cursor()
     add_debt = f"""INSERT INTO Debt VALUES ('{user}', {amount}, '{debtType}', {interestRate}, {minPayment})"""
     print(add_debt)
     cursor.execute(add_debt)
@@ -54,7 +57,12 @@ def createNewPlannedPayment(user):
     """
     Adds a new recurring payment instance and asks for payment details
     """
-    name = input('What should this recurring payment be called? ')
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
+    get_planned_payments = cursor.execute(f""" SELECT Title FROM planned_payments WHERE userID = '{user}' """).fetchall()
+    pp = [item[0] for item in get_planned_payments]
+
+    name = getValidInput('What should this planned payment be called? ', bannedOptions=pp, caseSensitive=True)
     amount = getValidInput('How much is this payment? ', decimal=True)
     recurring = getValidInput('Is this a recurring payment? ', options=['yes', 'no'])
     recurring = True if recurring == 'yes' else False # convert to boolean
@@ -64,8 +72,6 @@ def createNewPlannedPayment(user):
         date = getValidInput('What date is it due? (Please enter in MM-DD-YYYY format) ', isDate=True)
 
     # SQL command to enter data here
-    connection = sqlite3.connect('finances.db')
-    cursor = connection.cursor()
     add_planned_payment = f""" INSERT INTO planned_payments VALUES ('{user}', '{date}', '{name}', {amount}, {recurring} """
     cursor.execute(add_planned_payment)
     connection.commit()
