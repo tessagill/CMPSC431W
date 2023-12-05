@@ -39,7 +39,7 @@ def create_hourly_income_table():
     create_hourly_income_table = """CREATE TABLE hourly_income(
                             userID VARCHAR(30) NOT NULL REFERENCES User(userID),
                             hourly_wages FLOAT NOT NULL,
-                            hours_worked INT NOT NULL,
+                            hours_worked FLOAT NOT NULL,
                             PRIMARY KEY(userID),
                             FOREIGN KEY (userID) 
                                 REFERENCES User(userID)
@@ -48,8 +48,8 @@ def create_hourly_income_table():
                             """
     cursor.execute(create_hourly_income_table) 
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO hourly_income VALUES ('Tessa.Gill', 25, 150)''') 
-    cursor.execute('''INSERT INTO hourly_income VALUES ('John.Smith', 20, 300)''') 
+    cursor.execute('''INSERT INTO hourly_income VALUES ('Tessa.Gill', 25, 40)''') 
+    cursor.execute('''INSERT INTO hourly_income VALUES ('John.Smith', 20, 40)''') 
 
     connection.commit()
     connection.close()
@@ -131,9 +131,9 @@ def create_debt_table():
                             userID VARCHAR(30) NOT NULL REFERENCES User(userID),
                             debt_amount FLOAT NOT NULL,
                             debt_type VARCHAR(30) NOT NULL,
-                            Interest_rate FLOAT NOT NULL,
+                            interest_rate FLOAT NOT NULL,
                             min_payment FLOAT NOT NULL,
-                            PRIMARY KEY(userID),
+                            PRIMARY KEY(userID, debt_type),
                             FOREIGN KEY (userID) 
                                 REFERENCES User(userID)
                             ON UPDATE CASCADE ON DELETE RESTRICT
@@ -143,7 +143,9 @@ def create_debt_table():
     # Queries to INSERT records. 
     cursor.execute('''INSERT INTO debt VALUES ('Tessa.Gill', 20000, 'Student', 2.2, 750)''')
     cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 5000, 'Student', 2.2, 200)''') 
-    cursor.execute('''INSERT INTO debt VALUES ('John.Smith', 2350000, 'Mortage', 0.8, 1300)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 10000, 'credit card', 6.7, 100)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 3000, 'personal', 5.3, 200)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('John.Smith', 2350000, 'Mortgage', 0.8, 1300)''') 
 
     connection.commit()
     connection.close()
@@ -158,8 +160,8 @@ def create_investments_table():
     cursor.execute('DROP TABLE IF EXISTS investments')
     create_investments_table = """CREATE TABLE investments(
                             userID VARCHAR(30) NOT NULL REFERENCES User(userID),
-                            Portfolio_total FLOAT NOT NULL,
-                            risk_percent FLOAT NOT NULL,
+                            portfolio_total FLOAT NOT NULL,
+                            risk_score FLOAT NOT NULL,
                             PRIMARY KEY(userID, portfolio_total),
                             FOREIGN KEY (userID) 
                                 REFERENCES User(userID)
@@ -195,15 +197,15 @@ def create_planned_payments_table():
                             """
     cursor.execute(create_planned_payments_table)
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 1, 'Rent', 1200, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 15, 'Netflix', 20, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', 30, 'Utilities', 75, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', 1, 'Rent', 1000, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', 15, 'Utilites', 150, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', 1, 'Rent', 750, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', 1, 'Vacation', 1500, FALSE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Sarah.Smith', 15, 'Rent', 2000, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Sarah.Smith', 15, 'Netflix', 20, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '1', 'Rent', 1200, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '15', 'Netflix', 20, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '30', 'Utilities', 75, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '1', 'Rent', 1000, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '15', 'Utilites', 150, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', '1', 'Rent', 750, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', '01-11-2024', 'Vacation', 1500, FALSE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Sarah.Smith', '15', 'Rent', 2000, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Sarah.Smith', '15', 'Netflix', 20, TRUE)''') 
 
     connection.commit()
     connection.close()
@@ -241,6 +243,17 @@ def _initialize_tables():
     create_investments_table()
     create_planned_payments_table()
     create_budget_table()
+
+    connection = sqlite3.connect('finances.db')
+    # Cursor object
+    cursor = connection.cursor()
+    # Start us with a clean slate and rebuilds a User table if it already exists
+    get_all = connection.execute("""SELECT * FROM planned_payments""")
+    result = get_all.fetchall()
+    print('\n'.join([str(item) for item in result]))
+    connection.close()
+
+
 
 def main():
     _initialize_tables()
