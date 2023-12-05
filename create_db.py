@@ -105,8 +105,10 @@ def create_transactions_table():
     cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 2, 34,  2023-01-04, 'Clothes', 'Lululemon');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 3, 75,  2023-01-08, 'Gift', 'Amazon');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 1, 250, 2023-01-13, 'Groceries', 'Trader Joes');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 2, 85, 2023-01-18, 'Fast Food', 'Chick Fil A');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 2, 30, 2023-01-18, 'Fast Food', 'Chick Fil A');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 3, 87, 2023-01-23, 'Clothes', 'Amazon');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 4, 39, 2023-01-25, 'Clothes', 'Kohls');''')
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 5, 39, 2023-01-26, 'Fast Food', 'Kohls');''')
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 1, 2000, 2023-01-01, 'Furniture', 'IKEA');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 2, 250, 2023-01-01, 'Furniture', 'Wayfair');''') 
     cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 3, 75, 2023-01-01, 'Groceries', 'Giant');''') 
@@ -141,11 +143,11 @@ def create_debt_table():
                             """
     cursor.execute(create_debt_table)
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO debt VALUES ('Tessa.Gill', 20000, 'Student', 2.2, 750)''')
-    cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 5000, 'Student', 2.2, 200)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('Tessa.Gill', 20000, 'student loan', 2.2, 750)''')
+    cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 5000, 'student loan', 2.2, 200)''') 
     cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 10000, 'credit card', 6.7, 100)''') 
     cursor.execute('''INSERT INTO debt VALUES ('Jared.Cole', 3000, 'personal', 5.3, 200)''') 
-    cursor.execute('''INSERT INTO debt VALUES ('John.Smith', 2350000, 'Mortgage', 0.8, 1300)''') 
+    cursor.execute('''INSERT INTO debt VALUES ('John.Smith', 2350000, 'mortgage', 0.8, 1300)''') 
 
     connection.commit()
     connection.close()
@@ -172,6 +174,7 @@ def create_investments_table():
     # Queries to INSERT records. 
     cursor.execute('''INSERT INTO investments VALUES ('John.Smith', 50000, 15)''') 
     cursor.execute('''INSERT INTO investments VALUES ('Sarah.Smith', 25000, 10)''') 
+    cursor.execute('''INSERT INTO investments VALUES ('Jared.Cole', 14000, 49)''') 
 
     connection.commit()
     connection.close()
@@ -199,9 +202,11 @@ def create_planned_payments_table():
     # Queries to INSERT records. 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '1', 'Rent', 1200, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '15', 'Netflix', 20, TRUE)''') 
-    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '30', 'Utilities', 75, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Tessa.Gill', '30', 'Utilities', 75, TRUE)''')
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '13', 'Hulu', 12, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '1', 'Rent', 1000, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '15', 'Utilites', 150, TRUE)''') 
+    cursor.execute('''INSERT INTO planned_payments VALUES ('Jared.Cole', '01-11-2024', 'Ski Trip', 1500, FALSE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', '1', 'Rent', 750, TRUE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('John.Smith', '01-11-2024', 'Vacation', 1500, FALSE)''') 
     cursor.execute('''INSERT INTO planned_payments VALUES ('Sarah.Smith', '15', 'Rent', 2000, TRUE)''') 
@@ -220,10 +225,13 @@ def create_budget_table():
     cursor.execute('DROP TABLE IF EXISTS budget')
     create_budget_table = """CREATE TABLE budget(
                             userID VARCHAR(30) NOT NULL REFERENCES User(userID),
-                            type VARCHAR(30) NOT NULL,
-                            Allocated_amount FLOAT NOT NULL,
-                            Creation_date DATE NOT NULL,
-                            PRIMARY KEY (userID, type, creation_date),
+                            creation_date DATE NOT NULL,
+                            monthly_salary FLOAT NOT NULL,
+                            total_transactions FLOAT NOT NULL,
+                            total_debt_payments FLOAT NOT NULL,
+                            total_planned_payments FLOAT NOT NULL,
+                            remaining_budget FLOAT NOT NULL,
+                            PRIMARY KEY (userID, creation_date),
                             FOREIGN KEY (userID) 
                                 REFERENCES User(userID)
                             ON UPDATE CASCADE ON DELETE RESTRICT
@@ -243,16 +251,6 @@ def _initialize_tables():
     create_investments_table()
     create_planned_payments_table()
     create_budget_table()
-
-    connection = sqlite3.connect('finances.db')
-    # Cursor object
-    cursor = connection.cursor()
-    # Start us with a clean slate and rebuilds a User table if it already exists
-    get_all = connection.execute("""SELECT * FROM planned_payments""")
-    result = get_all.fetchall()
-    print('\n'.join([str(item) for item in result]))
-    connection.close()
-
 
 
 def main():
