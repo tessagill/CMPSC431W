@@ -34,19 +34,21 @@ def createNewDebt(user):
     """
     Adds a debt instance and asks what type and what amount
     """
-    debtType = getValidInput('What type of debt are you adding? student loan, credit card, personal, medical, mortage, miscellaneous: ', 
-                  options=['student loan', 'credit card', 'personal', 'medical', 'mortage', 'miscellaneous'])
-    amount = getValidInput('How much money in dollars is this debt? ', decimal=True)
+    debtType = getValidInput('What type of debt are you adding? (student loan, credit card, personal, medical, mortgage, miscellaneous): ', 
+                  options=['student loan', 'credit card', 'personal', 'medical', 'mortgage', 'miscellaneous'])
+    amount = getValidInput('How much money in dollars is this debt? $', decimal=True)
     interestRate = getValidInput('What is the annual interest rate? ', decimal=True)
-    minPayment = getValidInput('What is the minimum monthly payment? ', decimal=True)
+    minPayment = getValidInput('What is the minimum monthly payment? $', decimal=True)
 
     # SQL command to enter data here
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    add_debt = """ INSERT INTO Debt VALUES ('{user}', '{debtType}', '{amount}', '{interestRate}', '{total_balance})"""
+    add_debt = f"""INSERT INTO Debt VALUES ('{user}', {amount}, '{debtType}', {interestRate}, {minPayment})"""
+    print(add_debt)
     cursor.execute(add_debt)
+    connection.commit()
     connection.close()
-    print(f'\n{user.UserID}, your {debtType} debt of {amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment} has been added.')
+    print(f'\n{user}, your {debtType} debt of {amount:.2f}, with interest rate {interestRate}% and minimum payment ${minPayment:.2f} has been added.')
     input('\nPress ENTER to continue')
 
 def createNewPlannedPayment(user):
@@ -55,34 +57,27 @@ def createNewPlannedPayment(user):
     """
     name = input('What should this recurring payment be called? ')
     amount = getValidInput('How much is this payment? ', decimal=True)
-    date_by = getValidInput('What day of the month is it due? Enter number  1-31 ', integer=True, intRange=[1, 31])
-    recurring = getValidInput('Is this a recurring payment? ', bool = True)
+    recurring = getValidInput('Is this a recurring payment? ', options=['yes', 'no'])
+    recurring = True if recurring == 'yes' else False # convert to boolean
+    if recurring:
+        date = getValidInput('What day of the month is it due? Enter number 1-31 ', integer=True, intRange=[1, 31])
+    else:
+        date = getValidInput('What date is it due? (Please enter in MM-DD-YYYY format) ', isDate=True)
 
     # SQL command to enter data here
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    add_planned_payment = """ INSERT INTO planned_payments VALUES ('{user}', '{date_by}', '{name}', '{amount}', '{recurring}' """
+    add_planned_payment = f""" INSERT INTO planned_payments VALUES ('{user}', '{date}', '{name}', {amount}, {recurring} """
     cursor.execute(add_planned_payment)
+    connection.commit()
     connection.close()
 
     if recurring == True:
-        print(f'\nYour recurring payment, {name}, of ${amount:.2f} due the {date_by} of every month has been added.')
-    
-    elif recurring == False: 
-        print(f'\nYour planned payment, {name}, of ${amount:.2f} due by {date_by} has been added.')
+        print(f'\nYour recurring payment, {name}, of ${amount:.2f} due the {date} of every month has been added.')
+    else: 
+        print(f'\nYour planned payment, {name}, of ${amount:.2f} due by {date} has been added.')
 
     input('\nPress ENTER to continue')
-
-# def createNewUpcomingPayment(user):
-#     """
-#     Adds an upcoming payment instance and asks for payment details
-#     """
-#     name = input('What should this upcoming payment be called? ')
-#     amount = getValidInput('How much is this payment? ', decimal=True)
-#     date = getValidInput('What date is it due? (Please enter in MM-DD-YYYY format)\n', isDate=True)
-
-#     print(f'\nYour upcoming payment, {name}, of ${amount:.2f} on {date} has been added.')
-#     input('\nPress ENTER to continue')
 
 
 def createNewTransaction(user):
@@ -101,6 +96,7 @@ def createNewTransaction(user):
     cursor = connection.cursor()
     add_planned_payment = """ INSERT INTO transactions VALUES ('{user}', '{tranID}', '{amount}', '{category}', '{store_name})"""
     cursor.execute(add_planned_payment)
+    connection.commit()
     connection.close()
 
     print(f'\nYour {category} transaction from {store_name} of ${amount:.2f} has been added')
@@ -110,16 +106,40 @@ def updateIncome(user):
     """
     Updates the current user's income and returns the user object back
     """
-    newIncome = getValidInput('What do you want to update your income to? ', decimal=True)
-    # Add statement to do this with hourly workers
-    # SQL command to update income
+    incomeType = getValidInput('Is your new income hourly or salaried? ', options=['hourly', 'salaried'])
+
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    update_income = """ UPDATE Annual_income SET annual_pay = {newIncome} WHERE userID = {user}"""
-    cursor.execute(update_income)
+
+    if incomeType == 'salaried':
+        newIncome = getValidInput('What do you want to update your annual income to? ', decimal=True)
+        if isAnnual(user):
+            update_income = f""" UPDATE annual_income SET annual_pay = {newIncome} WHERE userID = '{user}'"""
+            cursor.execute(update_income)
+        else:
+            delete_hourly = f""" DELETE FROM hourly_income WHERE userID = '{user}'"""
+            cursor.execute(delete_hourly)
+            add_salaried_user = f""" INSERT INTO annual_income VALUES ('{user}', {newIncome})"""
+            cursor.execute(add_salaried_user)
+        print(f'\nYour annual income has been updated to ${newIncome:.2f}')
+
+    else:
+        hourly_wage = getValidInput('\nEnter your new hourly pay: ', decimal=True)
+        hours_worked = getValidInput('\nEnter your weekly hours worked: ', decimal=True)
+        
+        if isAnnual(user):
+            delete_annual = f""" DELETE FROM annual_income WHERE userID = '{user}'"""
+            cursor.execute(delete_annual)
+            add_hourly_user = f""" INSERT INTO hourly_income VALUES ('{user}', {hourly_wage}, {hours_worked})"""
+            cursor.execute(add_hourly_user)
+        else:
+            update_income = f""" UPDATE hourly_income SET hourly_wages = {hourly_wage}, hours_worked = {hours_worked} WHERE userID = '{user}'"""
+            cursor.execute(update_income)
+        print(f'Your hourly income has been updated to ${hourly_wage:.2f} with {hours_worked} hours a week.')
+    
+    connection.commit()
     connection.close()
     
-    print(f'\nYour income has been updated to ${newIncome:.2f}')
     input('\nPress ENTER to continue')
 
 
@@ -131,59 +151,57 @@ def updateDebt(user):
     # retrieve types of debt where user.userID is the same, then put it as debtTypes list
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    get_debts = """ SELECT debt_type FROM Debt WHERE userID = '{user}' )"""
-    debtTypes = [item[0] for item in cursor.fetchall(get_debts)]
-    connection.close()
-
-    selectedType = getValidInput(f'Which debt type do you want to modify?\ncurrent debt: {", ".join(debtTypes)}\n', options=debtTypes)
+    get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
+    debtTypes = [item[0].lower() for item in get_debts]
+    selectedType = getValidInput(f'Which debt type do you want to modify?\ncurrent debts: {", ".join(debtTypes)}\n', options=debtTypes)
 
     # SQL command to retrieve debt instance of selectedType and put it into debt object
-    connection = sqlite3.connect('finances.db')
-    cursor = connection.cursor()
-    selected_debt = """ SELECT * FROM Debt WHERE userID = '{user}' AND type = '{selectedType}' )"""
-    result = cursor.fetchone(selected_debt)
-    connection.close()
+    selected_debt = f""" SELECT * FROM Debt WHERE userID = '{user}' AND debt_type = '{selectedType}'"""
+    result = cursor.execute(selected_debt).fetchone()
 
     amount = result[1] # debt amount of selected type 
     print(f'We retrieved your {selectedType} debt of ${amount:.2f}\n')
 
     option = getValidInput('Do you want to change the debt amount, interest rate, minimum payment or simply delete it? ', 
-                  options=['debt amount', 'amount', 'min payment', 'minimum payment', 'delete'])
+                  options=['debt amount', 'amount', 'interest rate', 'min payment', 'minimum payment', 'delete'])
     
     if option == 'debt amount' or option == 'amount':
         newAmount = getValidInput('What amount should it be? ', decimal=True)
 
         # SQL command to update the new debt amount
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        update_debt_amt = """ UPDATE debt SET debt_amount = {newAmount} WHERE userID = '{user}'"""
+        update_debt_amt = f""" UPDATE debt SET debt_amount = {newAmount} WHERE userID = '{user}' AND debt_type = '{selectedType}' """
         cursor.execute(update_debt_amt)
-        connection.close()  
 
         print(f'Your {selectedType} debt amount has been successfully updated to ${newAmount:.2f}.')
 
+    elif option == 'interest rate':
+        newInterestRate = getValidInput('What is the new interest rate? ', decimal=True)
+
+        # SQL command to update new interest rate
+        update_interest_amount = f""" UPDATE debt SET interest_rate = {newInterestRate} WHERE userID = '{user}' AND debt_type = '{selectedType}' """
+        cursor.execute(update_interest_amount)
+        print(f'Your {selectedType} debt interest rate has been successfully updated to ${newInterestRate}%.')
+
+
     elif option == 'min payment' or option == 'minimum payment':
-        newMinPayment = getValidInput('What is the new minimum payment ', decimal=True)
+        newMinPayment = getValidInput('What is the new minimum payment? ', decimal=True)
 
         # SQL command to update new minimum payment
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        update_min_amount = """ UPDATE debt SET min_payment = {newMinPayment} WHERE userID = '{user}'"""
+        update_min_amount = f""" UPDATE debt SET min_payment = {newMinPayment} WHERE userID = '{user}' AND debt_type = '{selectedType}' """
         cursor.execute(update_min_amount)
-        connection.close()  
-
         print(f'Your {selectedType} debt minumum payment has been successfully updated to ${newMinPayment:.2f}.')
 
     elif option == 'delete':
         # SQL command to delete instance
         connection = sqlite3.connect('finances.db')
         cursor = connection.cursor()
-        delete_debt = """ DELETE FROM debt WHERE userID = '{user}' AND debt_type = '{selectedType}' """
+        delete_debt = f""" DELETE FROM debt WHERE userID = '{user}' AND debt_type = '{selectedType}' """
         cursor.execute(delete_debt)
-        connection.close()  
 
         print(f'Your {selectedType} debt has been successfully deleted.')
     
+    connection.commit()
+    connection.close()
     input('\nPress ENTER to continue')
 
 def updateInvestments(user):
@@ -193,35 +211,38 @@ def updateInvestments(user):
     # retrieves user's investment portfolio 
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    get_investment = """ SELECT * FROM Investments WHERE userID = '{user}' )"""
-    result = cursor.fetchall(get_investment)
-    connection.close()
+    get_investment = f""" SELECT * FROM Investments WHERE userID = '{user}' """
+    if cursor.execute(get_investment).fetchone() is None:
+        print('You have no investments. Add an investment portfolio to continue.')
+        connection.close()
+        input('\nPress ENTER to continue')
+        return
 
-    option = getValidInput('Do you want to change the risk score or simply delete the investment from your account? ', 
-                  options=['risk score', 'delete'])
-    
-    if option == 'risk score':
-        newPercent = getValidInput('What is your new risk score? ', decimal=True)
+    option = getValidInput('Do you want to update your portfolio balance, change the risk score or simply delete the investment from your account? ', 
+                  options=['portfolio balance', 'risk score', 'delete'])
+    if option == 'portfolio balance':
+        newBalance = getValidInput('What should the new balance be? ', decimal=True)
+
+        # SQL command to update the new portfolio balance
+        update_balance = f""" UPDATE Investments SET portfolio_total = {newBalance} WHERE userID = '{user}' """
+        cursor.execute(update_balance)
+        print(f'Your portfolio total has successfully been updated to ${newBalance:.2f}.')
+    elif option == 'risk score':
+        newScore = getValidInput('What is your new risk score? ', decimal=True)
 
         # SQL command to update the new risk score
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        update_risk_score = """ UPDATE Investments SET risk_percent = {newPercent} WHERE userID = '{user}' """
+        update_risk_score = f""" UPDATE Investments SET risk_score = {newScore} WHERE userID = '{user}' """
         cursor.execute(update_risk_score)
-        connection.close()  
-
-        print(f'Your risk score has successfully been updated to {newPercent:.2f} %.')
+        print(f'Your risk score has successfully been updated to {newScore:.2f}%.')
 
     elif option == 'delete':
         # SQL command to delete instance
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        delete_investment = """ DELETE FROM Investments WHERE userID = '{user}' AND portfolio_total = '{result[2]}' """
+        delete_investment = f""" DELETE FROM Investments WHERE userID = '{user}' """
         cursor.execute(delete_investment)
-        connection.close()  
-
         print(f'Your investment portfolio has successfully been deleted.')
     
+    connection.commit()
+    connection.close()
     input('\nPress ENTER to continue')
 
 def updatePlannedPayments(user):
@@ -231,11 +252,10 @@ def updatePlannedPayments(user):
     # retrieve the planned payment the use wants to alter
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
-    get_planned_payments = """ SELECT Title FROM planned_payments WHERE userID = '{user}' )"""
-    pp = [item[0] for item in cursor.fetchall(get_planned_payments)]
-    connection.close()
+    get_planned_payments = cursor.execute(f""" SELECT Title FROM planned_payments WHERE userID = '{user}' """).fetchall()
+    pp = [item[0] for item in get_planned_payments]
 
-    selectedType = getValidInput(f'Which planned payment do you want to modify?\ncurrent planned payments: {", ".join(pp)}\n', options=pp)
+    selectedTitle = getValidInput(f'Which planned payment do you want to modify?\ncurrent planned payments: {", ".join(pp)}\n', options=pp, caseSensitive=True)
 
     option = getValidInput('Do you want to change the payment amount, due date, or simply delete it? ', 
                   options=['payment amount', 'amount', 'due date', 'date', 'delete'])
@@ -244,36 +264,38 @@ def updatePlannedPayments(user):
         newAmount = getValidInput('What is your new payment amount? ', decimal=True)
 
         # SQL command to update the payment amount
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        update_payment_amt = """ UPDATE Planned_payments SET Amount = {newAmount} WHERE userID = '{user}' AND type = '{selectedType}' """
+        update_payment_amt = f""" UPDATE Planned_payments SET Amount = {newAmount} WHERE userID = '{user}' AND title = '{selectedTitle}' """
         cursor.execute(update_payment_amt)
-        connection.close() 
 
-        print(f'Your payment amount has successfully been updated to {newAmount:.2f} %.')
+        print(f'Your planned payment, {selectedTitle}, has its amount successfully changed to ${newAmount:.2f}.')
 
-    if option == 'due date' or option == 'date':
-        newDate = getValidInput('What is the new date of payment? ', integer=True, intRange=[1, 31])
+    elif option == 'due date' or option == 'date':
+        get_planned_payments = cursor.execute(f""" SELECT Recurring FROM planned_payments WHERE userID = '{user}' AND title='{selectedTitle}' """).fetchone()
+        recurring = True if get_planned_payments[0] == 1 else False
 
-        # SQL command to update the due date  
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        update_date = """ UPDATE Planned_payments SET Date = {newDate} WHERE userID = '{user}' AND type = '{selectedType}' """
-        cursor.execute(update_date)
-        connection.close() 
+        if recurring:
+            newDate = getValidInput('What is the new day of the month? ', integer=True, intRange=[1, 31])
 
-        print(f'The date of your payment has successfully been updated to the {newAmount} day of the month.')
+            # SQL command to update the due date  
+            update_date = f""" UPDATE Planned_payments SET Date_by = '{newDate}' WHERE userID = '{user}' AND title = '{selectedTitle}' """
+            cursor.execute(update_date)
+            print(f'The date of your payment has successfully been updated to the {newDate} day of the month.')
+        else:
+            newDate = getValidInput('What is the new date of payment? ', isDate=True)
+
+            # SQL command to update the due date  
+            update_date = f""" UPDATE Planned_payments SET Date_by = '{newDate}' WHERE userID = '{user}' AND title = '{selectedTitle}' """
+            cursor.execute(update_date)
+            print(f'The date of your payment has successfully been updated to {newDate}.')
 
     elif option == 'delete':
         # SQL command to delete instance
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        delete_planned_payment = """ DELETE FROM planned_payments WHERE userID = '{user}' AND type = '{selectedType}' """
+        delete_planned_payment = f""" DELETE FROM planned_payments WHERE userID = '{user}' AND title = '{selectedTitle}' """
         cursor.execute(delete_planned_payment)
-        connection.close()  
-
         print(f'Your planned payment has successfully been deleted.')
     
+    connection.commit()
+    connection.close()
     input('\nPress ENTER to continue')
 
 
@@ -303,13 +325,13 @@ def viewBudget(user):
     """
     Returns budget table with combined income, savings, and expenses
     """
+    connection = sqlite3.connect('finances.db')
+    cursor = connection.cursor()
     annualSalary = isAnnual(user)
 
     if annualSalary == True: 
         #SQL command to create budget for salary user
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        viewBudget = """SELECT u.userID AS userID, ROUND(a.annual_pay/12, 2) AS monthlySalary, sum(t.amount) AS
+        viewBudget = f"""SELECT u.userID AS userID, ROUND(a.annual_pay/12, 2) AS monthlySalary, sum(t.amount) AS
                         total_transactions, sum(d.min_payment) AS total_debt_monthly_payments,
                         sum(pp.amount) AS total_planned_expenses, 
                         ROUND((ROUND(a.annual_pay/12, 2) - sum(t.amount) - sum(d.min_payment) - sum(pp.amount)), 2) AS remainingAmount
@@ -322,18 +344,13 @@ def viewBudget(user):
                         ON u.userID = d.userID
                         LEFT JOIN Planned_Payments pp
                         ON u.userID = pp.userID
-                    WHERE u.userID = ?
+                    WHERE u.userID = '{user}'
                     """
 
-        cursor.execute(viewBudget, (user,))
-        result = cursor.fetchall()
-        connection.close()
-
+        result = cursor.execute(viewBudget).fetchone()
     else:
         #SQL command to create budget for hourly paid user
-        connection = sqlite3.connect('finances.db')
-        cursor = connection.cursor()
-        viewBudget = """SELECT u.userID AS userID, ROUND(h.hourly_wages * h.hours_worked * 4, 2) AS monthlySalary, sum(t.amount) AS
+        viewBudget = f"""SELECT u.userID AS userID, ROUND(h.hourly_wages * h.hours_worked * 4, 2) AS monthlySalary, sum(t.amount) AS
                         total_transactions, sum(d.min_payment) AS total_debt_monthly_payments,
                         sum(pp.amount) AS total_planned_expenses, 
                         ROUND((ROUND(h.hourly_wages * h.hours_worked * 4, 2) - sum(t.amount) - sum(d.min_payment) - sum(pp.amount)), 2) AS remainingAmount
@@ -346,16 +363,23 @@ def viewBudget(user):
                         ON u.userID = d.userID
                         LEFT JOIN Planned_Payments pp
                         ON u.userID = pp.userID
-                    WHERE u.userID = ?
+                    WHERE u.userID = '{user}'
                     """
-
-        cursor.execute(viewBudget, (user,))
-        result = cursor.fetchall()
-        connection.close()
+        result = cursor.execute(viewBudget).fetchone()
+    
+    monthly_salary = result[1] if result[1] is not None else 0
+    total_transactions = result[2] if result[2] is not None else 0
+    total_debt_payments = result[3] if result[3] is not None else 0
+    total_planned_payments = result[4] if result[4] is not None else 0
+    remaining_budget = result[5] if result[5] is not None else 0
+    connection.close()
 
     print(f'\nYour budget is:\n ')
-    for row in result:
-        print(f'Monthly Income: ${row[1]}\nTransactions: ${row[2]}\nDebt Payments: ${row[3]}\nPlanned Payments: ${row[4]}\nRemaining Amount: ${row[5]}')
+    print(f'Monthly Salary: ${monthly_salary:.2f}')
+    print(f'Total transactions from last month: ${total_transactions:.2f}')
+    print(f'Total debt payments: ${total_debt_payments:.2f}')
+    print(f'Total planned expenses: ${total_planned_payments}')
+    print(f'Remaining estimated balance: ${remaining_budget}')
     input('\nPress ENTER to continue')
 
 def isAnnual(user):
@@ -363,10 +387,9 @@ def isAnnual(user):
     connection = sqlite3.connect('finances.db')
     cursor = connection.cursor()
 
-    check= "SELECT COUNT(*) FROM annual_income WHERE userID = ?"
-    cursor.execute(check, (user,))
+    check= f"SELECT COUNT(*) FROM annual_income WHERE userID = '{user}'"
+    cursor.execute(check)
     count = cursor.fetchone()[0]
-
     connection.close()
     if count != 0:
         return True 
