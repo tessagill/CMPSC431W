@@ -1,11 +1,6 @@
 from verifyInput import *
 from datetime import datetime
 from User import *
-from Debt import *
-from Investments import *
-from PlannedPayments import *
-from Transactions import *
-from Budget import *
 
 def listCommands():
     print("""
