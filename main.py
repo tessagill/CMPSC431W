@@ -48,8 +48,6 @@ def getUser():
                     AnnuallyPaidUser(userID, salary)
             return userID
         
-        
-
     elif start == 'existing':
         logged_in = False
         while logged_in == False:
@@ -74,10 +72,8 @@ def main():
             createNewPlannedPayment(user)
         elif command == "create transaction":
             createNewTransaction(user)
-        elif command == "create new budget":
-            print("Handling CREATE new budget")
-
-
+        elif command == "create investment portfolio":
+            createNewInvestment(user)
         elif command == "update income":
             updateIncome(user) 
         elif command == "update debt":
@@ -86,23 +82,16 @@ def main():
             updateInvestments(user)
         elif command == "update planned payments":
             updatePlannedPayments(user)
-
-
         elif command == "view debt payoff timeline":
-            print("Handling VIEW debt payoff timeline")
-        elif command == "view predicted month's spending":
-            print("Handling VIEW predicted month's spending")
+            viewDebtPayoffTimeline(user)
         elif command == "view expenses by category":
             viewExpensesByCategory(user)
         elif command == "view budget":
             viewBudget(user)
-
         elif command == "exit":
             break
         else:
             print("Unknown command")
-
-
 
 
 if __name__ == '__main__':
