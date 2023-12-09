@@ -1,11 +1,34 @@
 # Create database 
-# Run first to set up DB 
+# Run first to set up DB
 
-import sqlite3
+import mysql.connector as mysql
+
+connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+)
+
+cursor = connection.cursor()
+cursor.execute("CREATE DATABASE finances")
+#start in terminal 
+#mysql -u root -p
+#password 'Mississippi32'
+#ALTER USER 'root'@'localhost' IDENTIFIED BY 'Mississippi32';
+
+#run in terminal 
+#CREATE DATABASE finances;
+#USE finances;
 
 def create_users_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -30,8 +53,13 @@ def create_users_table():
     connection.close()
 
 def create_hourly_income_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -56,8 +84,13 @@ def create_hourly_income_table():
 
 
 def create_annual_income_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -80,8 +113,13 @@ def create_annual_income_table():
     connection.close()
 
 def create_transactions_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -123,8 +161,13 @@ def create_transactions_table():
 
 
 def create_debt_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -154,8 +197,13 @@ def create_debt_table():
 
 
 def create_investments_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -180,8 +228,13 @@ def create_investments_table():
     connection.close()
 
 def create_planned_payments_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists
@@ -217,8 +270,13 @@ def create_planned_payments_table():
     
     
 def create_budget_table():
-    # Connect to sqlite and connect to tableSearch database
-    connection = sqlite3.connect('finances.db')
+    # Connect to mysql and connect to tableSearch database
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     # Cursor object
     cursor = connection.cursor()
     # Start us with a clean slate and rebuilds a User table if it already exists

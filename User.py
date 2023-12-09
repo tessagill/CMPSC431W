@@ -1,4 +1,4 @@
-import sqlite3
+import mysql.connector as mysql
 
 
 class User:
@@ -13,7 +13,12 @@ class User:
         return self.userID
 
     def addUser(userID, fname, lname, email, total_balance): 
-        connection = sqlite3.connect('finances.db')
+        connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
         cursor = connection.cursor()
 
         # Start a transaction
@@ -41,7 +46,12 @@ class User:
 
 
     def searchUserID(userID):
-        connection = sqlite3.connect('finances.db')
+        connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
         cursor = connection.cursor()
 
         get_user_info = """ SELECT * FROM User WHERE userID = ? """
@@ -71,7 +81,12 @@ class HourlyPaidUser:
         self.hourly_wages = hourly_wages
         self.hours_worked = hours_worked
         
-        connection = sqlite3.connect('finances.db')
+        connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
         cursor = connection.cursor()
         add_hourly_user = f""" INSERT INTO hourly_income VALUES ('{userID}', '{hourly_wages}', '{hours_worked}')"""
         cursor.execute(add_hourly_user)
@@ -86,7 +101,12 @@ class AnnuallyPaidUser:
         self.userID = userID
         self.salary = salary
 
-        connection = sqlite3.connect('finances.db')
+        connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
         cursor = connection.cursor()
         add_salaried_user = f""" INSERT INTO annual_income VALUES ('{userID}', '{salary}')"""
         cursor.execute(add_salaried_user)

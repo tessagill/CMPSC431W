@@ -1,6 +1,7 @@
 from verifyInput import *
 from datetime import datetime
 from User import *
+import mysql.connector as mysql
 
 def listCommands():
     print("""
@@ -28,7 +29,12 @@ def createNewDebt(user):
     """
     Adds a debt instance and asks what type and what amount
     """
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
     currentDebtTypes = [item[0] for item in get_debts] # types that must be banned
@@ -52,7 +58,12 @@ def createNewPlannedPayment(user):
     """
     Adds a new recurring payment instance and asks for payment details
     """
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_planned_payments = cursor.execute(f""" SELECT Title FROM planned_payments WHERE userID = '{user}' """).fetchall()
     pp = [item[0] for item in get_planned_payments]
@@ -84,7 +95,12 @@ def createNewTransaction(user):
     """
     Adds a new transaction instance and asks for transaction details
     """
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     amount = getValidInput('Enter transaction amount in dollars: ', decimal=True)
     category = getValidInput('Enter transaction type (utilites, travel, rent, entertainment, debt payment, groceries, clothes, gift, fast food, misc.): ',
@@ -95,7 +111,12 @@ def createNewTransaction(user):
 
 
     #SQL command to enter transaction here
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
     cursor = connection.cursor()
     add_transaction = f""" INSERT INTO transactions VALUES ('{user}', {tranID}, {amount}, CURRENT_TIMESTAMP, '{category}', '{store_name}')"""
     cursor.execute(add_transaction)
@@ -106,7 +127,12 @@ def createNewTransaction(user):
     input('\nPress ENTER to continue')
 
 def createNewInvestment(user):
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_investment = f""" SELECT * FROM Investments WHERE userID = '{user}' """
     if cursor.execute(get_investment).fetchone() is not None:
@@ -133,7 +159,12 @@ def updateIncome(user):
     """
     incomeType = getValidInput('Is your new income hourly or salaried? ', options=['hourly', 'salaried'])
 
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
 
     if incomeType == 'salaried':
@@ -174,7 +205,12 @@ def updateDebt(user):
     """
 
     # retrieve types of debt where user.userID is the same, then put it as debtTypes list
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
     debtTypes = [item[0] for item in get_debts]
@@ -225,7 +261,12 @@ def updateDebt(user):
 
     elif option == 'delete':
         # SQL command to delete instance
-        connection = sqlite3.connect('finances.db')
+        connection = mysql.connect(
+        host = 'localhost',
+        user = 'root',
+        password = 'Mississippi32', 
+        database = 'finances'
+        )
         cursor = connection.cursor()
         delete_debt = f""" DELETE FROM debt WHERE userID = '{user}' AND debt_type = '{selectedType}' """
         cursor.execute(delete_debt)
@@ -241,7 +282,12 @@ def updateInvestments(user):
     Updates the current user's selected investment or deletes it
     """
     # retrieves user's investment portfolio 
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_investment = f""" SELECT * FROM Investments WHERE userID = '{user}' """
     if cursor.execute(get_investment).fetchone() is None:
@@ -282,7 +328,12 @@ def updatePlannedPayments(user):
     Updates the current user's selected planned payment or deletes it
     """  
     # retrieve the planned payment the use wants to alter
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_planned_payments = cursor.execute(f""" SELECT Title FROM planned_payments WHERE userID = '{user}' """).fetchall()
     pp = [item[0] for item in get_planned_payments]
@@ -338,7 +389,12 @@ def updatePlannedPayments(user):
 
 def viewDebtPayoffTimeline(user):
     # retrieve types of debt where user.userID is the same, then put it as debtTypes list
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     get_debts = cursor.execute(f""" SELECT debt_type FROM Debt WHERE userID = '{user}' """).fetchall()
     debtTypes = [item[0] for item in get_debts]
@@ -382,7 +438,12 @@ def viewExpensesByCategory(user):
     Returns sorted list of expenses
     """
     #SQL command
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     order = getValidInput('Do you want to see the expenses in increasing or decreasing order?', options=['ascending', 'decreasing'])
     orderBY = 'ASC' if order == 'ascending' else 'DESC'
@@ -405,7 +466,12 @@ def viewBudget(user):
     """
     Returns budget table with combined income, savings, and expenses
     """
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
     annualSalary = isAnnual(user)
 
@@ -469,7 +535,12 @@ def viewBudget(user):
 
 def isAnnual(user):
     #SQL command to check if a user is paid annually 
-    connection = sqlite3.connect('finances.db')
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32', 
+    database = 'finances'
+    )
     cursor = connection.cursor()
 
     check= f"SELECT COUNT(*) FROM annual_income WHERE userID = '{user}'"
