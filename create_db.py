@@ -10,8 +10,8 @@ connection = mysql.connect(
     database = 'finances'
 )
 
-cursor = connection.cursor()
-cursor.execute("CREATE DATABASE finances")
+#cursor = connection.cursor()
+#cursor.execute("CREATE DATABASE finances")
 #start in terminal 
 #mysql -u root -p
 #password 'Mississippi32'
@@ -139,20 +139,20 @@ def create_transactions_table():
                             """
     cursor.execute(create_transactions_table) 
     # Queries to INSERT records. 
-    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 1, 100, 2023-01-01 , 'Groceries', 'Wegnmans');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 2, 34,  2023-01-04, 'Clothes', 'Lululemon');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 3, 75,  2023-01-08, 'Gift', 'Amazon');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 1, 250, 2023-01-13, 'Groceries', 'Trader Joes');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 2, 30, 2023-01-18, 'Fast Food', 'Chick Fil A');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 3, 87, 2023-01-23, 'Clothes', 'Amazon');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 4, 39, 2023-01-25, 'Clothes', 'Kohls');''')
-    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 5, 39, 2023-01-26, 'Fast Food', 'Kohls');''')
-    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 1, 2000, 2023-01-01, 'Furniture', 'IKEA');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 2, 250, 2023-01-01, 'Furniture', 'Wayfair');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 3, 75, 2023-01-01, 'Groceries', 'Giant');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 1, 200, 2023-01-12, 'Groceries', 'Wegnmans');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 2, 40, 2023-01-12, 'Gas', 'Wawa');''') 
-    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 3, 20, 2023-01-15, 'Movies', 'AMC');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 1, 100, '01-01-2023' , 'Groceries', 'Wegmans');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 2, 34, '01-04-2023', 'Clothes', 'Lululemon');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Tessa.Gill', 3, 75,  '01-08-2023', 'Gift', 'Amazon');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 1, 250, '01-13-2023', 'Groceries', 'Trader Joes');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 2, 30, '01-18-2023', 'Fast Food', 'Chick Fil A');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 3, 87, '01-23-2023', 'Clothes', 'Amazon');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 4, 39, '01-25-2023', 'Clothes', 'Kohls');''')
+    cursor.execute('''INSERT INTO Transactions VALUES('Jared.Cole', 5, 39, '01-26-2023', 'Fast Food', 'Kohls');''')
+    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 1, 2000, '01-01-2023', 'Furniture', 'IKEA');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 2, 250, '01-01-2023', 'Furniture', 'Wayfair');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('John.Smith', 3, 75, '01-01-2023', 'Groceries', 'Giant');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 1, 200, '01-12-2023', 'Groceries', 'Wegnmans');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 2, 40, '01-12-2023', 'Gas', 'Wawa');''') 
+    cursor.execute('''INSERT INTO Transactions VALUES('Sarah.Smith', 3, 20, '01-15-2023', 'Movies', 'AMC');''') 
 
 
 
