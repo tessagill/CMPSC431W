@@ -3,24 +3,6 @@
 
 import mysql.connector as mysql
 
-connection = mysql.connect(
-    host = 'localhost',
-    user = 'root',
-    password = 'Mississippi32', 
-    database = 'finances'
-)
-
-#cursor = connection.cursor()
-#cursor.execute("CREATE DATABASE finances")
-#start in terminal 
-#mysql -u root -p
-#password 'Mississippi32'
-#ALTER USER 'root'@'localhost' IDENTIFIED BY 'Mississippi32';
-
-#run in terminal 
-#CREATE DATABASE finances;
-#USE finances;
-
 def create_users_table():
     # Connect to mysql and connect to tableSearch database
     connection = mysql.connect(
@@ -312,6 +294,16 @@ def _initialize_tables():
 
 
 def main():
+    connection = mysql.connect(
+    host = 'localhost',
+    user = 'root',
+    password = 'Mississippi32'
+    )
+    cursor = connection.cursor()
+    cursor.execute("DROP DATABASE finances")
+    cursor.execute("CREATE DATABASE finances")
+    connection.commit()
+    connection.close()
     _initialize_tables()
 
 if __name__ == '__main__':

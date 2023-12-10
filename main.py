@@ -1,6 +1,7 @@
 from User import *
 from verifyInput import *
 from commands import *
+import mysql.connector as mysql
 
 def getUser():
     start = getValidInput('\nAre you a new or existing user? ', options=['new', 'existing'])
